@@ -33,6 +33,9 @@ saves/*.json
 firebase-debug.log
 .firebase/
 
+# Archives/Documentation (keep only README.md)
+archives/
+
 # OS
 .DS_Store
 Thumbs.db
