@@ -1192,19 +1192,30 @@ Would you like to continue your previous game?
                 }
                 currentRoomCode = null;
             } else {
-                // Single player - save game to Firestore
-                try {
-                    await fetch(`${API_URL}/execute`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-User-ID': firebaseUserId
-                        },
-                        body: JSON.stringify({ command: 'look' }) // Trigger a save
-                    });
-                    console.log('✅ Game saved to Firestore');
-                } catch (error) {
-                    console.error('Error saving game:', error);
+                // Single player - check if game is won
+                if (gameWon) {
+                    // If won, delete the save (fresh start next time)
+                    try {
+                        await db.collection('saves').doc(firebaseUserId).delete();
+                        console.log('✅ Victory save deleted');
+                    } catch (error) {
+                        console.error('Error deleting save:', error);
+                    }
+                } else {
+                    // If not won, save game to Firestore
+                    try {
+                        await fetch(`${API_URL}/execute`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-User-ID': firebaseUserId
+                            },
+                            body: JSON.stringify({ command: 'look' }) // Trigger a save
+                        });
+                        console.log('✅ Game saved to Firestore');
+                    } catch (error) {
+                        console.error('Error saving game:', error);
+                    }
                 }
             }
             
@@ -1215,15 +1226,22 @@ Would you like to continue your previous game?
             // Clear game state (with null checks)
             const locationDesc = document.getElementById('location-desc');
             if (locationDesc) locationDesc.textContent = '';
-            
+
             const menuHint = document.querySelector('.menu-hint');
             if (menuHint) menuHint.innerHTML = '';
-            
+
+            const commandMenu = document.getElementById('command-menu');
+            if (commandMenu) commandMenu.innerHTML = '';
+
             const commandList = document.getElementById('command-list');
             if (commandList) commandList.innerHTML = '';
-            
+
+            // Reset game state
             gameWon = false;
-            
+            availableActions = [];
+            selectedIndex = 0;
+            isWaitingForInput = false;
+
             // Return to welcome screen
             showScreen('welcome-screen');
             
@@ -1561,19 +1579,15 @@ Would you like to continue your previous game?
                         updateLocationDesc(data.location_desc);
                     }
 
-                    // Check if this is a talk command - auto-show answer box
-                    const isTalkCommand = command.toLowerCase().startsWith('talk');
-
-                    // Show result message (with answer box if talking to NPC)
-                    showMessage(data.message, data.art, isTalkCommand);
-
-                    // Update available actions
-                    availableActions = data.actions || [];
-
-                    // Check for win
+                    // Check for win FIRST - before showing any messages
                     if (data.game_won) {
                         gameWon = true;
+
+                        // Hide all UI immediately - don't call showMessage() at all
+                        document.getElementById('message-display').classList.remove('show');
                         document.getElementById('answer-input-container').style.display = 'none';
+                        document.getElementById('command-menu').style.display = 'none';
+                        document.querySelector('.menu-hint').innerHTML = '';
 
                         // Play victory video
                         playVideo('images/videos/walking_out.mp4', () => {
@@ -1584,18 +1598,26 @@ Would you like to continue your previous game?
                             // Show conclusion text in the location desc
                             updateLocationDesc('You turn and look back at the decrepit mansion, still confused about how you even got here in the first place. The spirits inside were mysterious, but you were lucky they took a liking to you and helped you escape. Perhaps next time... you won\'t be so lucky.');
 
-                            document.querySelector('.menu-hint').innerHTML = '';
-                            renderCommandMenu([{
-                                icon: '🏠',
-                                label: 'Return to Main Menu',
-                                command: 'return_to_menu'
-                            }]);
-                            
-                            // Victory screen - don't wait for input, just show button
+                            // Hide command menu and show hint to use Quit button
+                            document.getElementById('command-menu').style.display = 'none';
+                            document.getElementById('command-list').innerHTML = '';
+                            document.querySelector('.menu-hint').innerHTML = '🎉 Congratulations! You escaped! Click the "Quit" button above to return to the main menu.';
+
+                            // Victory screen - don't wait for input
                             isWaitingForInput = false;
                         });
-                        return; // Don't set isWaitingForInput = true below
+                        return; // Exit early - don't show message or update actions
                     }
+
+                    // Check if this is a talk command - auto-show answer box
+                    const isTalkCommand = command.toLowerCase().startsWith('talk');
+
+                    // Show result message (with answer box if talking to NPC)
+                    // Only called if NOT game_won
+                    showMessage(data.message, data.art, isTalkCommand);
+
+                    // Update available actions
+                    availableActions = data.actions || [];
 
                     isWaitingForInput = true;
                 } else {
@@ -1657,8 +1679,10 @@ Would you like to continue your previous game?
                     setTimeout(() => {
                         videoElement.style.display = 'none';
                         videoElement.classList.remove('fade-out');
-                        // Show image container again but keep it hidden until image is set
+                        // Reset image container to prepare for new image
                         imgElement.style.display = 'block';
+                        imgElement.style.opacity = '0';
+                        imgElement.classList.remove('fade-out');
                         if (onComplete) onComplete();
                     }, 500);
                 };
@@ -1710,14 +1734,14 @@ Would you like to continue your previous game?
                 };
                 newImage.src = '/' + imagePath;
             } else {
-                // First load - just show it with a gentle fade in
+                // First load or after video - show with a gentle fade in
                 imgElement.src = '/' + imagePath;
                 imgElement.style.display = 'block';
                 imgElement.style.opacity = '0';
-                // Fade in smoothly
-                requestAnimationFrame(() => {
+                // Use setTimeout to ensure the image is loaded and DOM is ready
+                setTimeout(() => {
                     imgElement.style.opacity = '1';
-                });
+                }, 50);
             }
         }
 
@@ -1864,19 +1888,31 @@ Would you like to continue your previous game?
             } else if (action.command === 'return_to_menu') {
                 // Return to main menu after victory
                 stopMusic();
-                
+
                 // Clear all game text and state (with null checks)
                 const locationDesc = document.getElementById('location-desc');
                 if (locationDesc) locationDesc.textContent = '';
-                
+
                 const menuHint = document.querySelector('.menu-hint');
                 if (menuHint) menuHint.innerHTML = '';
-                
+
+                const commandMenu = document.getElementById('command-menu');
+                if (commandMenu) commandMenu.innerHTML = '';
+
                 const commandList = document.getElementById('command-list');
                 if (commandList) commandList.innerHTML = '';
-                
+
+                // Reset game state
                 gameWon = false;
-                
+                availableActions = [];
+                selectedIndex = 0;
+                isWaitingForInput = false;
+
+                // Delete the save so returning to menu gives a fresh start
+                if (firebaseUserId) {
+                    db.collection('saves').doc(firebaseUserId).delete().catch(e => console.log('Save delete error:', e));
+                }
+
                 showScreen('welcome-screen');
                 playMusic('/sounds/main_menu_ghost_piano.mp3', true);
             } else if (action.command.startsWith('start_chat_')) {

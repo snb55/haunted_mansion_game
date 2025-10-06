@@ -39,11 +39,13 @@ class AINPC:
         self.conversation_history: List[Dict] = []
         self.current_puzzle: Optional[str] = None
         self.puzzle_answer: Optional[str] = None
+        self.initial_greeting_done = False  # Track if first greeting happened
+        self.riddle_given = False  # Track if riddle has been presented
         
         # Initialize Gemini if available
-        self.api_key = os.getenv('GEMINI_API_KEY')
+        self.api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyCBn9RuOlWhVH8skLWsFRs_zOu1138ayXo')
         self.model = None
-        
+
         if GEMINI_AVAILABLE and self.api_key:
             try:
                 genai.configure(api_key=self.api_key)
@@ -68,19 +70,43 @@ CURRENT GAME STATE:
 """
         
         if self.guards_item and not self.puzzle_solved:
-            prompt += f"""
-IMPORTANT: You are guarding the {self.guards_item}. The player needs this item to progress.
+            # Determine what stage of conversation we're in
+            if not self.initial_greeting_done:
+                # First message - just greet with initial question
+                if self.name == "Edgar Blackwood":
+                    prompt += """
 
-Have a NATURAL CONVERSATION with them. Don't just give them a single puzzle and demand an answer.
-Instead:
-- Greet them in character
-- Engage in dialogue about the mansion, your past, their quest
-- Challenge them with questions, riddles, or philosophical discussions
-- React to what they say
-- After 2-3 meaningful exchanges where they prove themselves (clever answers, kind words, good reasoning),
-  decide they've earned your trust and give them the item
+YOUR TASK: This is your FIRST greeting. Say ONLY: "Are you worthy of such power?"
 
-This should feel like talking to a real ghost, not a vending machine! Be mysterious, engaging, and dynamic.
+DO NOT add anything else. DO NOT give the riddle yet. Just ask this one question."""
+                elif self.name == "Little Eliza":
+                    prompt += """
+
+YOUR TASK: This is your FIRST greeting. Say ONLY: "Will you be my friend?"
+
+DO NOT add anything else. DO NOT give the riddle yet. Just ask this one question."""
+            elif not self.riddle_given:
+                # Second message - time to give the riddle
+                prompt += f"""
+
+CRITICAL: You already asked your initial question. The player responded. Now you MUST give your riddle.
+
+DO NOT repeat your initial question. NEVER say "Are you worthy of such power?" or "Will you be my friend?" again.
+
+YOUR TASK: Give ONLY the riddle from your role description. Be brief and direct.
+"""
+            else:
+                # After riddle is given - handle answers
+                prompt += f"""
+
+The riddle has been given. The player is trying to solve it.
+
+YOUR TASK: 
+- If their answer seems correct (or close), celebrate and include [GIVE_ITEM] to give them the {self.guards_item}
+- If their answer is wrong, give a helpful hint about the riddle
+- NEVER repeat your initial greeting question
+- NEVER repeat the exact same hint twice
+- Be encouraging but mysterious
 """
         elif self.guards_item and self.puzzle_solved:
             prompt += f"""
@@ -96,15 +122,19 @@ Be helpful in a cryptic way. Give hints and atmosphere.
         prompt += """
 
 RULES:
-- Stay in character at ALL times
-- Keep responses to 2-4 sentences (brief but atmospheric)
-- Be spooky, mysterious, or eccentric depending on your personality
-- Don't break the fourth wall
-- Don't mention being an AI
-- If asked about the puzzle and it's not solved yet, remind them of the puzzle
-- Use emojis sparingly (1-2 max) for atmosphere
+- Stay in character at ALL times - you are a ghost in a haunted mansion
+- Keep responses moderate length: 2-4 sentences per response
+- Be conversational and engaging - this should feel like a real dialogue
+- Build atmosphere and intrigue before revealing your riddle
+- When giving the riddle, use EXACTLY the wording from your role description
+- NEVER REPEAT YOURSELF - every response must be unique based on conversation context
+- For wrong answers: Give completely different hints each time or pose a NEW riddle with the same answer
+- Track what hints you've given in the conversation history and provide FRESH information
+- When they get it right, be enthusiastic and give the item dramatically
+- Use your personality to make the conversation memorable and unpredictable
+- If you've given 3+ hints, consider rephrasing the riddle in a new way
 
-Respond naturally to the player's message."""
+Respond naturally to the player's message based on the conversation so far."""
         
         return prompt
     
@@ -129,10 +159,17 @@ Respond naturally to the player's message."""
             
             # Add conversation history context
             history_context = ""
+            wrong_attempts = 0
             if self.conversation_history:
                 history_context = "\n\nPREVIOUS CONVERSATION:\n"
-                for msg in self.conversation_history[-5:]:  # Last 5 exchanges
+                for msg in self.conversation_history[-8:]:  # Last 8 exchanges for better context
                     history_context += f"Player: {msg['player']}\nYou: {msg['npc']}\n"
+                    # Count how many times player got the riddle wrong
+                    if any(word in msg['npc'].lower() for word in ['wrong', 'incorrect', 'not quite', 'try again', 'no,']):
+                        wrong_attempts += 1
+
+                if wrong_attempts > 0:
+                    history_context += f"\n[Note: Player has {wrong_attempts} wrong attempt(s). Give them a DIFFERENT hint this time!]\n"
             
             # Add special instructions for puzzle completion detection
             give_item_instruction = ""
@@ -152,6 +189,14 @@ Be conversational and engaging. Don't just ask one puzzle - have a real dialogue
             # Generate response
             response = self.model.generate_content(full_prompt)
             npc_response = response.text.strip()
+            
+            # Update conversation state flags
+            if not self.initial_greeting_done:
+                self.initial_greeting_done = True
+            elif not self.riddle_given and self.guards_item and not self.puzzle_solved:
+                # Check if this response contains a riddle (has a question mark)
+                if '?' in npc_response:
+                    self.riddle_given = True
             
             # Check if NPC decided to give item
             should_give_item = False
@@ -252,7 +297,9 @@ Your response:"""
             'location': self.location,
             'guards_item': self.guards_item,
             'puzzle_solved': self.puzzle_solved,
-            'conversation_history': self.conversation_history
+            'conversation_history': self.conversation_history,
+            'initial_greeting_done': self.initial_greeting_done,
+            'riddle_given': self.riddle_given
         }
     
     @staticmethod
@@ -268,5 +315,7 @@ Your response:"""
             puzzle_solved=data.get('puzzle_solved', False)
         )
         npc.conversation_history = data.get('conversation_history', [])
+        npc.initial_greeting_done = data.get('initial_greeting_done', False)
+        npc.riddle_given = data.get('riddle_given', False)
         return npc
 
