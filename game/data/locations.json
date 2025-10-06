@@ -1,0 +1,38 @@
+{
+  "entrance_hall": {
+    "name": "Entrance Hall",
+    "description": "You stand in a grand entrance hall. Cobwebs hang from a dusty crystal chandelier above. The air is thick with the smell of decay. A heavy wooden door blocks the exit to the south. To the north, you see a doorway leading deeper into the mansion.",
+    "initial_state": {
+      "door_unlocked": false
+    },
+    "exits": {
+      "north": "library"
+    },
+    "initial_items": [],
+    "stationary_objects": ["locked_door"]
+  },
+  "library": {
+    "name": "Library",
+    "description": "Rows of ancient, leather-bound books line floor-to-ceiling shelves. Dust motes dance in the dim light filtering through cracked windows. A large oak desk sits in the center, and you notice an ornate bookshelf on the east wall that looks slightly out of place.",
+    "initial_state": {
+      "secret_passage_revealed": false
+    },
+    "exits": {
+      "south": "entrance_hall"
+    },
+    "initial_items": [],
+    "stationary_objects": ["bookshelf"]
+  },
+  "basement": {
+    "name": "Basement",
+    "description": "You descend into a damp, cold basement. The darkness is oppressive, and you can barely see your hand in front of your face. Water drips somewhere in the shadows. The stone walls feel ancient and forbidding.",
+    "initial_state": {
+      "lights_on": false
+    },
+    "exits": {
+      "up": "library"
+    },
+    "initial_items": ["rusty_key"],
+    "stationary_objects": []
+  }
+}

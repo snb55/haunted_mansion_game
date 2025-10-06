@@ -1,0 +1,48 @@
+{
+  "mobile_items": {
+    "rusty_key": {
+      "name": "Rusty Key",
+      "description": "An old, rusty iron key. It looks like it might fit an old lock. The metal is cold to the touch and covered in a patina of age.",
+      "can_take": true,
+      "use_targets": ["locked_door"]
+    },
+    "candle": {
+      "name": "Candle",
+      "description": "A half-melted white candle with a wick that looks like it could still be lit. It might provide some light in dark places.",
+      "can_take": true,
+      "use_targets": ["basement"]
+    },
+    "ancient_amulet": {
+      "name": "Ancient Amulet",
+      "description": "A mysterious amulet with strange symbols etched into tarnished silver. It feels warm and pulses with an otherworldly energy.",
+      "can_take": true,
+      "use_targets": ["bookshelf"]
+    }
+  },
+  "stationary_objects": {
+    "locked_door": {
+      "name": "Locked Door",
+      "description": "A heavy wooden door with iron reinforcements. The lock looks old but sturdy. This appears to be the exit from the mansion.",
+      "interaction_message": "The door is locked tight. You need a key to open it.",
+      "success_message": "You insert the rusty key into the lock. With a satisfying click, the door unlocks!",
+      "required_item": "rusty_key",
+      "state_change": {
+        "location": "entrance_hall",
+        "state_key": "door_unlocked",
+        "new_value": true
+      }
+    },
+    "bookshelf": {
+      "name": "Bookshelf",
+      "description": "This bookshelf on the left seems a bit different, almost like it could be moved by ancient magic. Upon closer inspection, you notice strange symbols carved into the wood that match those on the amulet.",
+      "interaction_message": "You examine the bookshelf closely, searching for any hidden mechanisms.",
+      "success_message": "You channel the amulet's power toward the bookshelf. The symbols glow with ethereal light, and with a grinding sound, the bookshelf slides aside, revealing a dark stairway leading down to a basement!",
+      "required_item": null,
+      "state_change": {
+        "location": "library",
+        "state_key": "secret_passage_revealed",
+        "new_value": true
+      }
+    }
+  }
+}

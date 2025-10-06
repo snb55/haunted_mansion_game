@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haunted Mansion - Interactive Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Welcome Screen */
+        .welcome-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #8b0000;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.6);
+        }
+
+        .welcome-box h1 {
+            font-size: 2.5em;
+            color: #ff4444;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .banner-text {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-left: 5px solid #8b0000;
+            margin: 30px 0;
+            text-align: left;
+            white-space: pre-line;
+            line-height: 1.8;
+        }
+
+        .button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #8b0000, #a50000);
+            color: #fff;
+            border: 2px solid #ff0000;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            background: linear-gradient(135deg, #a50000, #c00000);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #333, #555);
+            border-color: #666;
+        }
+
+        .button-secondary:hover {
+            background: linear-gradient(135deg, #555, #777);
+            box-shadow: 0 0 20px rgba(100, 100, 100, 0.6);
+        }
+
+        /* Game Screen */
+        .game-screen {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #8b0000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.6);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #8b0000;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-header h2 {
+            color: #ff4444;
+            font-size: 2em;
+            text-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+            letter-spacing: 3px;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .game-header-left, .game-header-right {
+            min-width: 120px;
+        }
+
+        .game-header-right {
+            text-align: right;
+        }
+
+        .sound-toggle-btn {
+            background: rgba(139, 0, 0, 0.6);
+            border: 2px solid #8b0000;
+            color: #ff9900;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .sound-toggle-btn:hover {
+            background: rgba(180, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.5);
+        }
+
+        .game-id-display {
+            color: #888;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .game-id-display span {
+            color: #ff9900;
+            font-weight: bold;
+        }
+
+        .ascii-art {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            white-space: pre;
+            font-size: 0.9em;
+            color: #aaa;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        .location-desc {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            white-space: pre-line;
+            line-height: 1.6;
+            min-height: 150px;
+        }
+
+        .divider {
+            border-top: 2px solid #8b0000;
+            margin: 20px 0;
+        }
+
+        .command-menu {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .command-item {
+            padding: 12px 20px;
+            margin: 5px 0;
+            background: rgba(30, 30, 30, 0.8);
+            border: 2px solid #555;
+            border-radius: 5px;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .command-item .icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .command-item:hover {
+            background: rgba(50, 50, 50, 0.9);
+            border-color: #777;
+            color: #fff;
+        }
+
+        .command-item.selected {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(180, 0, 0, 0.9));
+            border: 3px solid #ff0000;
+            color: #fff;
+            transform: translateX(15px);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
+            font-weight: bold;
+        }
+
+        .menu-hint {
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+            padding: 15px;
+            font-style: italic;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 5px;
+        }
+
+        /* Message display for action results */
+        .message-display {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            white-space: pre-line;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .message-display.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Chat history styles */
+        .chat-history {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .chat-message.player {
+            background: rgba(0, 100, 200, 0.3);
+            border-left: 3px solid #0099ff;
+            text-align: right;
+        }
+
+        .chat-message.npc {
+            background: rgba(139, 0, 0, 0.3);
+            border-left: 3px solid #ff4444;
+        }
+
+        .chat-message .sender {
+            font-weight: bold;
+            color: #ff9900;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .chat-message .text {
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .chat-message.player .sender {
+            color: #0099ff;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .continue-hint {
+            text-align: center;
+            color: #ff9900;
+            font-size: 0.95em;
+            margin-top: 10px;
+            font-style: italic;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Win screen styles */
+        .win-message {
+            background: rgba(0, 100, 0, 0.3);
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            font-weight: bold;
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2em;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            color: #ff9900;
+            font-style: italic;
+            margin: 10px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        /* Answer input styling */
+        .answer-input-container {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ff9900;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: 2px solid #666;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #ff9900;
+            box-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8b0000;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a50000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="welcome-box">
+                <h1>🏚️ HAUNTED MANSION 🏚️</h1>
+                <div class="banner-text">╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║           Welcome to the HAUNTED MANSION                     ║
+║                                                              ║
+║  You stand before a decrepit mansion on a foggy hillside.   ║
+║  The windows are dark, and strange sounds echo from within.  ║
+║  You push open the creaking door and step inside...          ║
+║                                                              ║
+║  Your goal: ESCAPE the mansion before it's too late!        ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝</div>
+                <div>
+                    <button class="button" onclick="checkForSave()">🎮 Start Adventure</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue Screen -->
+        <div id="continue-screen" class="screen">
+            <div class="welcome-box">
+                <h1>🏚️ HAUNTED MANSION 🏚️</h1>
+                <div class="banner-text" style="text-align: center; padding: 40px;">
+🕯️ A saved game has been found.
+
+Would you like to continue your previous game?
+                </div>
+                <div>
+                    <button class="button" onclick="loadGame()">✓ Yes, Continue</button>
+                    <button class="button button-secondary" onclick="startNewGame()">✗ No, Start New Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-screen">
+                <div class="game-header">
+                    <div class="game-header-left">
+                        <button id="sound-toggle" class="sound-toggle-btn" onclick="toggleSound()" title="Toggle Sound">
+                            🔊
+                        </button>
+                    </div>
+                    <h2>🕯️ HAUNTED MANSION 🕯️</h2>
+                    <div class="game-header-right">
+                        <div class="game-id-display">
+                            Game ID: <span id="game-id-display">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ascii-art" class="ascii-art"></div>
+
+                <div class="divider"></div>
+
+                <div id="location-desc" class="location-desc"></div>
+
+                <div class="divider"></div>
+
+                <div id="message-display" class="message-display"></div>
+
+                <div id="chat-history" class="chat-history" style="display:none;">
+                    <!-- Chat messages will stack here -->
+                </div>
+
+                <div id="command-menu" class="command-menu">
+                    <!-- Commands will be populated here -->
+                </div>
+
+                <div id="answer-input-container" class="answer-input-container" style="display:none;">
+                    <label for="answer-input" style="color: #ff9900; margin-bottom: 10px; display: block; font-size: 1.1em;">
+                        💬 Chatting with NPC:
+                    </label>
+                    <input type="text" id="answer-input" class="answer-input" placeholder="Type your message..." autocomplete="off">
+                    <div style="margin-top: 10px;">
+                        <button class="button" onclick="submitAnswer()" style="padding: 10px 20px; margin-right: 10px; font-size: 1em;">📤 Send</button>
+                        <button class="button button-secondary" onclick="cancelAnswer()" style="padding: 10px 20px; font-size: 1em;">🚪 End Chat</button>
+                    </div>
+                    <div style="margin-top: 10px; color: #888; font-size: 0.9em; text-align: center; font-style: italic;">
+                        Press ENTER to send • Type "bye" to end conversation
+                    </div>
+                </div>
+
+                <div class="menu-hint">
+                    ⌨️ Use ↑↓ arrow keys to navigate • Press ENTER to select • Click to choose
+                </div>
+
+                <div id="loading" class="loading">⏳ Processing...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedIndex = 0;
+        let availableActions = [];
+        let isWaitingForInput = false;
+        let gameWon = false;
+        let inChatMode = false;
+        let currentNPC = null;
+        let soundEnabled = true;
+
+        // Sound System
+        function playSound(soundPath) {
+            if (!soundEnabled) return;
+            const audio = new Audio(soundPath);
+            audio.play().catch(e => console.log('Sound play failed:', e));
+        }
+
+        // Play click sound on every button
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('button') || e.target.matches('.command-item')) {
+                playSound('/static/sounds/click.mp3');
+            }
+        });
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-toggle');
+            
+            if (soundEnabled) {
+                btn.textContent = '🔊';
+                btn.title = 'Sound On (click to mute)';
+            } else {
+                btn.textContent = '🔇';
+                btn.title = 'Sound Off (click to unmute)';
+            }
+        }
+
+        function updateGameIdDisplay(sessionId) {
+            const gameIdElement = document.getElementById('game-id-display');
+            if (gameIdElement && sessionId) {
+                // Show first 8 characters of the session ID
+                gameIdElement.textContent = sessionId.substring(0, 8).toUpperCase();
+            }
+        }
+
+        // Check for saved game on start
+        function checkForSave() {
+            fetch('/api/check_save')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        showScreen('continue-screen');
+                    } else {
+                        startNewGame();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking save:', error);
+                    startNewGame();
+                });
+        }
+
+        // Start new game
+        function startNewGame() {
+            showLoading(true);
+            fetch('/api/new_game', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    showLoading(false);
+                    if (data.success) {
+                        updateGameView(data);
+                        showScreen('game-screen');
+                        if (data.session_id) {
+                            updateGameIdDisplay(data.session_id);
+                        }
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    console.error('Error starting game:', error);
+                    alert('Failed to start game. Please refresh and try again.');
+                });
+        }
+
+        // Load saved game
+        function loadGame() {
+            showLoading(true);
+            fetch('/api/load_game', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    showLoading(false);
+                    if (data.success) {
+                        updateGameView(data);
+                        showScreen('game-screen');
+                        if (data.session_id) {
+                            updateGameIdDisplay(data.session_id);
+                        }
+                    } else {
+                        alert(data.message || 'Failed to load game.');
+                        startNewGame();
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    console.error('Error loading game:', error);
+                    alert('Failed to load game. Starting new game instead.');
+                    startNewGame();
+                });
+        }
+
+        // Execute selected command
+        function executeCommand(command) {
+            if (isWaitingForInput && !gameWon) {
+                // If showing result, clear it and show menu
+                hideMessageDisplay();
+                isWaitingForInput = false;
+                return;
+            }
+
+            showLoading(true);
+            
+            fetch('/api/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                if (data.success) {
+                    // Play action-specific sounds
+                    const cmd = command.toLowerCase();
+                    if (cmd.startsWith('take ') || cmd.startsWith('get ') || cmd.startsWith('grab ')) {
+                        playSound('/static/sounds/pick_up_item.mp3');
+                    } else if (cmd.startsWith('drop ')) {
+                        playSound('/static/sounds/drop_item.mp3');
+                    } else if (cmd.startsWith('use ') && cmd.includes('key')) {
+                        if (data.message.includes('unlocks') || data.message.includes('open')) {
+                            playSound('/static/sounds/unlock_and_open_door.mp3');
+                        }
+                    } else if (cmd.startsWith('use ') && cmd.includes('amulet')) {
+                        if (data.message.includes('bookshelf') || data.message.includes('secret') || data.message.includes('slides')) {
+                            playSound('/static/sounds/bookshelf_opens.mp3');
+                        }
+                    } else if (cmd.includes('door') && (data.message.includes('locked') || data.message.includes('can\'t'))) {
+                        playSound('/static/sounds/locked_door.mp3');
+                    } else if (cmd.startsWith('examine ') && cmd.includes('door')) {
+                        if (data.message.includes('locked')) {
+                            playSound('/static/sounds/locked_door.mp3');
+                        }
+                    } else if (cmd.startsWith('go ')) {
+                        playSound('/static/sounds/walking_between_rooms.mp3');
+                    }
+
+                    // Update location description FIRST (the middle section)
+                    if (data.location_desc) {
+                        updateLocationDesc(data.location_desc);
+                    }
+                    
+                    // Update location ASCII art (top section)
+                    if (data.location_art) {
+                        updateAsciiArt(data.location_art);
+                    }
+                    
+                    // Check if this is a talk command - auto-show answer box
+                    const isTalkCommand = command.toLowerCase().startsWith('talk');
+                    
+                    // Show result message (with answer box if talking to NPC)
+                    showMessage(data.message, data.art, isTalkCommand);
+                    
+                    // Update available actions
+                    availableActions = data.actions || [];
+                    
+                    // Check for win
+                    if (data.game_won) {
+                        gameWon = true;
+                        document.getElementById('answer-input-container').style.display = 'none';
+                        document.querySelector('.menu-hint').innerHTML = 
+                            '🎉 Congratulations! Press ENTER or click below to play again 🎉';
+                        renderCommandMenu([{
+                            icon: '🔄',
+                            label: 'Play Again',
+                            command: 'new_game_special'
+                        }]);
+                    }
+                    
+                    isWaitingForInput = true;
+                } else {
+                    alert(data.message || 'Command failed.');
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error executing command:', error);
+                alert('Failed to execute command.');
+            });
+        }
+
+        // Update game view
+        function updateGameView(data) {
+            updateAsciiArt(data.art);
+            updateLocationDesc(data.message);
+            availableActions = data.actions || [];
+            renderCommandMenu(availableActions);
+            hideMessageDisplay();
+            isWaitingForInput = false;
+            gameWon = false;
+        }
+
+        // Update ASCII art
+        function updateAsciiArt(art) {
+            const artDiv = document.getElementById('ascii-art');
+            artDiv.textContent = art || '';
+            artDiv.style.display = art ? 'block' : 'none';
+        }
+
+        // Update location description
+        function updateLocationDesc(desc) {
+            document.getElementById('location-desc').textContent = desc || '';
+        }
+
+        // Show message with optional art
+        function showMessage(message, art, showAnswerBox = false) {
+            const messageDiv = document.getElementById('message-display');
+            let content = message;
+            if (art) {
+                content = art + '\n\n' + message;
+            }
+            messageDiv.textContent = content;
+            messageDiv.classList.add('show');
+            
+            // Check if this is an NPC talking (asking for an answer)
+            if (showAnswerBox || message.includes('says:') || message.includes('(Type \'answer')) {
+                // Auto-show answer box if NPC is asking something
+                document.getElementById('command-menu').style.display = 'none';
+                document.getElementById('answer-input-container').style.display = 'block';
+                document.getElementById('answer-input').value = '';
+                document.getElementById('answer-input').focus();
+                document.querySelector('.menu-hint').innerHTML = 
+                    '💭 Type your answer above and press ENTER or click Submit';
+            } else {
+                // Normal message - hide command menu
+                document.getElementById('command-menu').style.display = 'none';
+                document.querySelector('.menu-hint').innerHTML = 
+                    '<span class="continue-hint">Press ENTER to continue...</span>';
+            }
+        }
+
+        // Hide message display
+        function hideMessageDisplay() {
+            const messageDiv = document.getElementById('message-display');
+            messageDiv.classList.remove('show');
+            document.getElementById('command-menu').style.display = 'block';
+            document.getElementById('answer-input-container').style.display = 'none';
+            document.querySelector('.menu-hint').innerHTML = 
+                '⌨️ Use ↑↓ arrow keys to navigate • Press ENTER to select • Click to choose';
+            renderCommandMenu(availableActions);
+        }
+
+        // Render command menu
+        function renderCommandMenu(actions) {
+            const menu = document.getElementById('command-menu');
+            menu.innerHTML = '';
+            selectedIndex = 0;
+
+            actions.forEach((action, index) => {
+                const item = document.createElement('div');
+                item.className = 'command-item';
+                if (index === 0) {
+                    item.classList.add('selected');
+                }
+                
+                item.innerHTML = `
+                    <span class="icon">${action.icon}</span>
+                    <span>${action.label}</span>
+                `;
+                
+                item.addEventListener('click', () => {
+                    selectCommand(index);
+                    executeSelectedCommand();
+                });
+                
+                menu.appendChild(item);
+            });
+        }
+
+        // Navigate commands
+        function navigateUp() {
+            if (availableActions.length === 0) return;
+            
+            const items = document.querySelectorAll('.command-item');
+            items[selectedIndex].classList.remove('selected');
+            
+            selectedIndex = (selectedIndex - 1 + availableActions.length) % availableActions.length;
+            
+            items[selectedIndex].classList.add('selected');
+            items[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        function navigateDown() {
+            if (availableActions.length === 0) return;
+            
+            const items = document.querySelectorAll('.command-item');
+            items[selectedIndex].classList.remove('selected');
+            
+            selectedIndex = (selectedIndex + 1) % availableActions.length;
+            
+            items[selectedIndex].classList.add('selected');
+            items[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        function selectCommand(index) {
+            const items = document.querySelectorAll('.command-item');
+            items[selectedIndex].classList.remove('selected');
+            selectedIndex = index;
+            items[selectedIndex].classList.add('selected');
+        }
+
+        function executeSelectedCommand() {
+            if (availableActions.length === 0) return;
+            
+            const action = availableActions[selectedIndex];
+            if (action.command === 'new_game_special') {
+                startNewGame();
+            } else if (action.command.startsWith('start_chat_')) {
+                const npcId = action.command.replace('start_chat_', '');
+                startChatMode(npcId);
+            } else {
+                executeCommand(action.command);
+            }
+        }
+        
+        function startChatMode(npcId) {
+            inChatMode = true;
+            currentNPC = npcId;
+            
+            // Hide menu and message display, show chat history and input
+            document.getElementById('command-menu').style.display = 'none';
+            document.getElementById('message-display').classList.remove('show');
+            document.getElementById('chat-history').style.display = 'block';
+            document.getElementById('chat-history').innerHTML = ''; // Clear previous chat
+            document.getElementById('answer-input-container').style.display = 'block';
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').placeholder = 'Type your message...';
+            document.getElementById('answer-input').focus();
+            
+            // Update label
+            document.querySelector('#answer-input-container label').textContent = '💬 Chatting with NPC:';
+            
+            // Update hint
+            document.querySelector('.menu-hint').innerHTML = 
+                '💬 Type your messages • Press ENTER to send • Type "bye" to end conversation';
+            
+            // Add welcome message
+            addChatMessage('npc', 'NPC', 'Conversation started. Say hello!');
+        }
+        
+        function addChatMessage(type, sender, text) {
+            const chatHistory = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${type}`;
+            messageDiv.innerHTML = `
+                <div class="sender">${sender}</div>
+                <div class="text">${text}</div>
+            `;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight; // Auto-scroll to bottom
+        }
+
+        function showAnswerPrompt() {
+            // Hide command menu, show answer input
+            document.getElementById('command-menu').style.display = 'none';
+            document.getElementById('answer-input-container').style.display = 'block';
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            
+            // Update hint
+            document.querySelector('.menu-hint').innerHTML = 
+                '💭 Type your answer and press Submit';
+        }
+
+        function cancelAnswer() {
+            if (inChatMode) {
+                exitChatMode();
+            } else {
+                // Hide answer input, show command menu
+                document.getElementById('answer-input-container').style.display = 'none';
+                document.getElementById('command-menu').style.display = 'block';
+                document.querySelector('.menu-hint').innerHTML = 
+                    '⌨️ Use ↑↓ arrow keys to navigate • Press ENTER to select • Click to choose';
+                renderCommandMenu(availableActions);
+            }
+        }
+
+        function submitAnswer() {
+            const message = document.getElementById('answer-input').value.trim();
+            if (!message) {
+                alert('Please type a message first!');
+                return;
+            }
+            
+            // Check if ending conversation
+            if (message.toLowerCase() === 'bye' || message.toLowerCase() === 'exit' || message.toLowerCase() === 'quit') {
+                exitChatMode();
+                return;
+            }
+            
+            // Add player message to chat
+            addChatMessage('player', 'You', message);
+            
+            // Clear input immediately for next message
+            document.getElementById('answer-input').value = '';
+            
+            // Show loading
+            showLoading(true);
+            
+            // Send message via talk command
+            fetch('/api/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: `talk ${message}` })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                if (data.success) {
+                    // Update game state
+                    if (data.location_desc) {
+                        updateLocationDesc(data.location_desc);
+                    }
+                    if (data.location_art) {
+                        updateAsciiArt(data.location_art);
+                    }
+                    
+                    // Extract NPC name and message
+                    const npcMatch = data.message.match(/^(.+?) says:\s*"(.+)"$/s) || 
+                                   data.message.match(/^(.+?) says:\s*(.+)$/s);
+                    
+                    if (npcMatch) {
+                        const npcName = npcMatch[1].trim();
+                        let npcText = npcMatch[2].trim();
+                        npcText = npcText.replace(/^["']|["']$/g, ''); // Remove quotes
+                        
+                        // Add NPC response to chat
+                        addChatMessage('npc', npcName, npcText);
+                        
+                        // Check if item was given
+                        if (data.message.includes('✨')) {
+                            const itemMatch = data.message.match(/given you the (.+?)!/);
+                            if (itemMatch) {
+                                // Play pick up item sound when NPC gives item
+                                playSound('/static/sounds/pick_up_item.mp3');
+                                addChatMessage('npc', '✨ System', `${npcName} has given you the ${itemMatch[1]}!`);
+                                setTimeout(() => {
+                                    if (confirm('Item received! Continue conversation or exit?')) {
+                                        // Continue
+                                    } else {
+                                        exitChatMode();
+                                    }
+                                }, 1500);
+                            }
+                        }
+                    } else {
+                        // Fallback: show raw message
+                        addChatMessage('npc', 'NPC', data.message);
+                    }
+                    
+                    // Update actions
+                    availableActions = data.actions || [];
+                    
+                    // Keep chat box focused and ready
+                    document.getElementById('answer-input').focus();
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('Failed to send message.');
+            });
+        }
+        
+        function exitChatMode() {
+            inChatMode = false;
+            currentNPC = null;
+            
+            // Hide chat input, chat history, and message
+            document.getElementById('answer-input-container').style.display = 'none';
+            document.getElementById('chat-history').style.display = 'none';
+            document.getElementById('message-display').classList.remove('show');
+            document.getElementById('command-menu').style.display = 'block';
+            
+            // Reset placeholder
+            document.getElementById('answer-input').placeholder = 'Enter your answer here...';
+            
+            // Reset label
+            document.querySelector('#answer-input-container label').textContent = '💭 Type your answer to the puzzle:';
+            
+            // Reset hint
+            document.querySelector('.menu-hint').innerHTML = 
+                '⌨️ Use ↑↓ arrow keys to navigate • Press ENTER to select • Click to choose';
+            
+            // Refresh command menu
+            renderCommandMenu(availableActions);
+            isWaitingForInput = false;
+        }
+
+        // Allow Enter key in answer input and ESC to cancel
+        document.addEventListener('DOMContentLoaded', () => {
+            const answerInput = document.getElementById('answer-input');
+            if (answerInput) {
+                answerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitAnswer();
+                    }
+                });
+                
+                answerInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelAnswer();
+                    }
+                });
+            }
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            const currentScreen = document.querySelector('.screen.active').id;
+            
+            if (currentScreen !== 'game-screen') {
+                return;
+            }
+            
+            // Don't handle arrow keys if answer input is visible
+            const answerContainer = document.getElementById('answer-input-container');
+            if (answerContainer && answerContainer.style.display !== 'none') {
+                return;
+            }
+            
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (!isWaitingForInput) {
+                    navigateUp();
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (!isWaitingForInput) {
+                    navigateDown();
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                executeSelectedCommand();
+            }
+        });
+
+        // Utility functions
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
+

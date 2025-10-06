@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "timestamp": "2025-10-04T01:30:36.806569",
+  "game_state": {
+    "player": {
+      "current_location": "entrance_hall",
+      "inventory": [
+        "candle",
+        "ancient_amulet",
+        "rusty_key"
+      ],
+      "max_inventory": 10
+    },
+    "locations": {
+      "entrance_hall": {
+        "state": {
+          "door_unlocked": true
+        },
+        "items": []
+      },
+      "library": {
+        "state": {
+          "secret_passage_revealed": true
+        },
+        "items": []
+      },
+      "basement": {
+        "state": {
+          "lights_on": true
+        },
+        "items": []
+      }
+    }
+  }
+}

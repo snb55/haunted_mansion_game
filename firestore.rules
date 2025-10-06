@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User saves (single player)
+    match /saves/{userId} {
+      // Users can only access their own saves
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Multiplayer game sessions
+    match /gameSessions/{sessionId} {
+      // Anyone authenticated can read (to join rooms)
+      allow read: if request.auth != null;
+      
+      // Anyone authenticated can create a room
+      allow create: if request.auth != null && 
+                      request.resource.data.ownerId == request.auth.uid;
+      
+      // Owner can delete the room
+      allow delete: if request.auth != null && 
+                      resource.data.ownerId == request.auth.uid;
+      
+      // Owner and players can update
+      allow update: if request.auth != null && 
+                      (resource.data.ownerId == request.auth.uid ||
+                       request.auth.uid in resource.data.players.keys());
+      
+      // Chat messages subcollection
+      match /chat/{messageId} {
+        // Players in the room can read and write chat messages
+        allow read: if request.auth != null;
+        allow create: if request.auth != null &&
+                        request.resource.data.firebaseUserId == request.auth.uid;
+      }
+    }
+    
+    // User profiles (optional)
+    match /users/{userId} {
+      allow read: if true; // Public profiles for multiplayer
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

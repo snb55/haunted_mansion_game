@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haunted Mansion - Multiplayer Adventure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+            <div class="login-box">
+                <h1>🏚️ HAUNTED MANSION 🏚️</h1>
+                <p class="subtitle">A Multiplayer Text Adventure</p>
+                <div class="intro-text">
+                    <p>You stand before a decrepit mansion on a foggy hillside.</p>
+                    <p>The windows are dark, and strange sounds echo from within.</p>
+                    <p>Others have entered before you... but will any escape?</p>
+                </div>
+                <input type="text" id="player-name" placeholder="Enter your name..." maxlength="20">
+
+                <div class="session-options">
+                    <button id="create-session" class="btn-secondary">🎮 Create New Game</button>
+                    <div class="or-divider">OR</div>
+                    <input type="text" id="session-code" placeholder="Enter game code (e.g., abc123)" maxlength="8">
+                    <button id="join-session" class="btn-secondary">🚪 Join Existing Game</button>
+                </div>
+
+                <button id="start-game" class="btn-primary" style="display:none;">Enter the Mansion</button>
+                <div id="session-info" style="display:none; margin-top: 15px; padding: 10px; background: rgba(0,255,0,0.1); border: 1px solid #0f0; border-radius: 5px;">
+                    <p style="margin: 5px 0; color: #0f0;">✓ Ready to join!</p>
+                    <p style="margin: 5px 0; color: #ccc; font-size: 0.9em;">Game Code: <strong id="display-session-code"></strong></p>
+                    <p style="margin: 5px 0; color: #aaa; font-size: 0.85em;">Share this code with friends to play together!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <h2>🕯️ HAUNTED MANSION 🕯️</h2>
+                <div class="player-info">
+                    <span id="player-name-display"></span>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <div id="output-area" class="output-area">
+                    <!-- Game messages will appear here -->
+                </div>
+
+                <div id="command-menu" class="command-menu">
+                    <!-- Available commands will appear here -->
+                </div>
+
+                <div class="menu-hint">
+                    Use ↑↓ arrow keys to navigate, press ENTER to select
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

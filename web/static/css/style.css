@@ -1,0 +1,330 @@
+/* Haunted Mansion Game Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+}
+
+/* Screens */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Login Screen */
+.login-box {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #8b0000;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(139, 0, 0, 0.5);
+}
+
+.login-box h1 {
+    font-size: 2.5em;
+    color: #ff4444;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+.intro-text {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-left: 3px solid #8b0000;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.intro-text p {
+    margin: 10px 0;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+#player-name {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1em;
+    border: 2px solid #555;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+}
+
+#player-name:focus {
+    outline: none;
+    border-color: #8b0000;
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    background: linear-gradient(135deg, #8b0000, #a50000);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #a50000, #c00000);
+    box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    background: rgba(70, 70, 70, 0.6);
+    color: #fff;
+    border: 2px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    transition: all 0.3s;
+    margin: 5px 0;
+}
+
+.btn-secondary:hover {
+    background: rgba(90, 90, 90, 0.8);
+    border-color: #8b0000;
+    box-shadow: 0 0 15px rgba(139, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.session-options {
+    margin: 20px 0;
+}
+
+.or-divider {
+    text-align: center;
+    color: #888;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+/* Game Screen */
+.game-header {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #8b0000;
+    border-radius: 10px 10px 0 0;
+    padding: 20px;
+    text-align: center;
+    border-bottom: none;
+}
+
+.game-header h2 {
+    color: #ff4444;
+    font-size: 1.8em;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    margin-bottom: 10px;
+}
+
+.player-info {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+.game-content {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #8b0000;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(139, 0, 0, 0.5);
+}
+
+.output-area {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 20px;
+    height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.output-area::-webkit-scrollbar {
+    width: 10px;
+}
+
+.output-area::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.output-area::-webkit-scrollbar-thumb {
+    background: #8b0000;
+    border-radius: 5px;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 3px;
+    white-space: pre-wrap;
+}
+
+.message.system {
+    background: rgba(0, 100, 200, 0.2);
+    border-left: 3px solid #0066cc;
+    color: #66b3ff;
+}
+
+.message.success {
+    color: #e0e0e0;
+}
+
+.message.error {
+    background: rgba(200, 0, 0, 0.2);
+    border-left: 3px solid #cc0000;
+    color: #ff6666;
+}
+
+.message.info {
+    background: rgba(100, 100, 100, 0.2);
+    border-left: 3px solid #666;
+    color: #ccc;
+    font-style: italic;
+}
+
+.message.look {
+    background: rgba(50, 50, 50, 0.3);
+    border-left: 3px solid #8b0000;
+    color: #ddd;
+}
+
+.message.win {
+    background: rgba(0, 200, 0, 0.2);
+    border-left: 3px solid #00cc00;
+    color: #66ff66;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2em;
+    padding: 20px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.command-menu {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.command-item {
+    padding: 12px 15px;
+    margin: 5px 0;
+    background: rgba(50, 50, 50, 0.6);
+    border: 2px solid #555;
+    border-radius: 5px;
+    color: #ccc;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+}
+
+.command-item:hover {
+    background: rgba(70, 70, 70, 0.8);
+    border-color: #8b0000;
+    color: #fff;
+}
+
+.command-item.selected {
+    background: linear-gradient(135deg, rgba(165, 0, 0, 0.8), rgba(200, 0, 0, 0.8));
+    border-color: #ff0000;
+    border-width: 3px;
+    color: #fff;
+    transform: translateX(10px);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+.menu-hint {
+    text-align: center;
+    color: #888;
+    font-size: 0.85em;
+    padding: 10px;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .login-box h1 {
+        font-size: 1.8em;
+    }
+
+    .output-area {
+        height: 300px;
+    }
+
+    .quick-commands {
+        flex-direction: column;
+    }
+
+    .quick-btn {
+        min-width: 100%;
+    }
+}
